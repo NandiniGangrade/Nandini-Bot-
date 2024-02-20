@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nandini Bot</title>
+    <style>
+        body {
+            background-color:black;
+            color: White; 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+        } 
+        h1 {
+            color:lightyellow; 
+            font-size: 36px; 
+            margin-top: 20px; 
+        }
+        label {
+            font-weight: bold;
+            color: yellow; 
+        }
+        textarea::placeholder {
+            color: white; 
+            font-weight: bold;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #4CAF50; 
+            background-color: blue;  
+        }
+        #pastResponses {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: black; 
+            border: 1px solid #4CAF50; 
+        }
+        #pastResponses h2 {
+            color: orange; 
+        }
+        #responsesList {
+            list-style-type: none; 
+            padding: 0;
+        }
+        #responsesList li {
+            margin-bottom: 10px; 
+        }
+        #responsesList li strong {
+            color: white; 
+        }
+        #responsesList li span {
+            color: #b3b3b3; 
+        }
+    </style>
+</head>
+<body>
+    <center> 
+        <h1>Nandini Bot</h1>
+        <form action="/process" method="POST" id="searchForm">
+            <label for="openai_api_key">OpenAI API Key:</label>
+            <input type="text" id="openai_api_key" name="openai_api_key">
+            <br><br>
+            <label for="input_text">Enter Question:</label><br>
+            <textarea id="input_text" name="input_text" placeholder="Ask any Question with Nandini" rows="4" cols="30"></textarea>
+            <br><br>
+            <input type="submit" value="Submit">
+        </form>
+        <div id="pastResponses" class="response">
+            <h2>Past Searched Responses:</h2>
+            <ul id="responsesList">
+            </ul>
+        </div>
+    </center>
+
+    <script>
+        // Function to update the past responses list
+        function updatePastResponses() {
+            fetch('/get_past_responses') // Send a GET request to the server to get past responses
+                .then(response => response.json())
+                .then(data => {
+                    const pastResponsesList = document.getElementById('responsesList');
+                    pastResponsesList.innerHTML = ''; // Clear the previous list
+                    data.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<strong>${item.query}</strong>: <span>${item.response}</span>`;
+                        pastResponsesList.appendChild(listItem); // Add each past response as a list item
+                    });
+                })
+                .catch(error => console.error('Error fetching past responses:', error));
+        }
+
+        // Call the updatePastResponses function when the page loads
+        window.onload = updatePastResponses;
+
+        // Add an event listener to the form submission to update the past responses list after each search
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            setTimeout(updatePastResponses, 1000); // Wait for 1 second before updating to allow the server to process the request
+        });
+    </script>
+</body>
+</html>
